@@ -1,7 +1,7 @@
 import { Resolvable, Resolver } from 'did-resolver'
 import { Contract, ContractFactory, getBytes, SigningKey } from 'ethers'
-import { EthereumDIDRegistry, getResolver } from 'ethr-did-resolver'
-import { DelegateTypes, EthrDID, KeyPair } from '../index'
+import { EzrahDIDRegistry, getResolver } from 'ezrah-did-resolver'
+import { DelegateTypes, EzrahDID, KeyPair } from '../index'
 import { createProvider, sleep } from './util/testUtils'
 import { verifyJWT } from 'did-jwt'
 
@@ -9,9 +9,9 @@ import { jest } from '@jest/globals'
 
 jest.setTimeout(30000)
 
-describe('EthrDID', () => {
-  let ethrDid: EthrDID,
-    plainDid: EthrDID,
+describe('EzrahDID', () => {
+  let ezrahDid: EzrahDID,
+    plainDid: EzrahDID,
     registry: string,
     accounts: string[],
     did: string,
@@ -24,7 +24,7 @@ describe('EthrDID', () => {
   const provider = createProvider()
 
   beforeAll(async () => {
-    const factory = ContractFactory.fromSolidity(EthereumDIDRegistry).connect(await provider.getSigner(0))
+    const factory = ContractFactory.fromSolidity(EzrahDIDRegistry).connect(await provider.getSigner(0))
 
     let registryContract: Contract
     registryContract = await factory.deploy()
@@ -39,10 +39,10 @@ describe('EthrDID', () => {
     owner = accounts[2]
     delegate1 = accounts[3]
     delegate2 = accounts[4]
-    did = `did:ethr:dev:${identity}`
+    did = `did:ezrah:dev:${identity}`
 
     resolver = new Resolver(getResolver({ name: 'dev', provider, registry, chainId: 1337 }))
-    ethrDid = new EthrDID({
+    ezrahDid = new EzrahDID({
       provider,
       registry,
       identifier: identity,
@@ -52,26 +52,26 @@ describe('EthrDID', () => {
 
   describe('presets', () => {
     it('sets address', () => {
-      expect(ethrDid.address).toEqual(identity)
+      expect(ezrahDid.address).toEqual(identity)
     })
 
     it('sets did', () => {
-      expect(ethrDid.did).toEqual(did)
+      expect(ezrahDid.did).toEqual(did)
     })
   })
 
   it('defaults owner to itself', () => {
-    return expect(ethrDid.lookupOwner()).resolves.toEqual(identity)
+    return expect(ezrahDid.lookupOwner()).resolves.toEqual(identity)
   })
 
   describe('key management', () => {
     describe('owner changed', () => {
       beforeAll(async () => {
-        await ethrDid.changeOwner(owner)
+        await ezrahDid.changeOwner(owner)
       })
 
       it('changes owner', () => {
-        return expect(ethrDid.lookupOwner()).resolves.toEqual(owner)
+        return expect(ezrahDid.lookupOwner()).resolves.toEqual(owner)
       })
 
       it('resolves document', async () => {
@@ -99,7 +99,7 @@ describe('EthrDID', () => {
     describe('delegates', () => {
       describe('add signing delegate', () => {
         beforeAll(async () => {
-          const txHash = await ethrDid.addDelegate(delegate1, {
+          const txHash = await ezrahDid.addDelegate(delegate1, {
             expiresIn: 86400,
           })
           await provider.waitForTransaction(txHash)
@@ -136,7 +136,7 @@ describe('EthrDID', () => {
 
       describe('add auth delegate', () => {
         beforeAll(async () => {
-          const txHash = await ethrDid.addDelegate(delegate2, {
+          const txHash = await ezrahDid.addDelegate(delegate2, {
             delegateType: DelegateTypes.sigAuth,
             expiresIn: 5,
           })
@@ -213,7 +213,7 @@ describe('EthrDID', () => {
 
       describe('re-add auth delegate', () => {
         beforeAll(async () => {
-          const txHash = await ethrDid.addDelegate(delegate2, {
+          const txHash = await ezrahDid.addDelegate(delegate2, {
             delegateType: DelegateTypes.sigAuth,
           })
           await provider.waitForTransaction(txHash)
@@ -255,7 +255,7 @@ describe('EthrDID', () => {
 
       describe('revokes delegate', () => {
         it('resolves document', async () => {
-          const txHash = await ethrDid.revokeDelegate(delegate2, DelegateTypes.sigAuth)
+          const txHash = await ezrahDid.revokeDelegate(delegate2, DelegateTypes.sigAuth)
           await provider.waitForTransaction(txHash)
           await sleep(2) // this smells but for some reason ganache is not updating :(
 
@@ -292,7 +292,7 @@ describe('EthrDID', () => {
       describe('publicKey', () => {
         describe('Secp256k1VerificationKey2018', () => {
           beforeAll(async () => {
-            const txHash = await ethrDid.setAttribute(
+            const txHash = await ezrahDid.setAttribute(
               'did/pub/Secp256k1/veriKey',
               '0x02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71',
               86400
@@ -336,7 +336,7 @@ describe('EthrDID', () => {
 
         describe('Base64 Encoded Key', () => {
           beforeAll(async () => {
-            const txHash = await ethrDid.setAttribute(
+            const txHash = await ezrahDid.setAttribute(
               'did/pub/Ed25519/veriKey/base64',
               'Arl8MN52fwhM4wgBaO4pMFO6M7I11xFqMmPSnxRQk2tx',
               86400
@@ -386,7 +386,7 @@ describe('EthrDID', () => {
 
         describe('Use Buffer', () => {
           beforeAll(async () => {
-            const txHash = await ethrDid.setAttribute(
+            const txHash = await ezrahDid.setAttribute(
               'did/pub/Ed25519/veriKey/base64',
               Buffer.from('f2b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b72', 'hex'),
               86400
@@ -450,7 +450,7 @@ describe('EthrDID', () => {
       describe('service endpoints', () => {
         describe('HubService', () => {
           beforeAll(async () => {
-            const txHash = await ethrDid.setAttribute('did/svc/HubService', 'https://hubs.uport.me', 86400)
+            const txHash = await ezrahDid.setAttribute('did/svc/HubService', 'https://hubs.uport.me', 86400)
             await provider.waitForTransaction(txHash)
           })
           it('resolves document', async () => {
@@ -503,7 +503,7 @@ describe('EthrDID', () => {
               ],
               service: [
                 {
-                  id: 'did:ethr:dev:0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf#service-1',
+                  id: 'did:ezrah:dev:0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf#service-1',
                   type: 'HubService',
                   serviceEndpoint: 'https://hubs.uport.me',
                 },
@@ -514,7 +514,7 @@ describe('EthrDID', () => {
 
         describe('revoke HubService', () => {
           beforeAll(async () => {
-            const txHash = await ethrDid.revokeAttribute('did/svc/HubService', 'https://hubs.uport.me')
+            const txHash = await ezrahDid.revokeAttribute('did/svc/HubService', 'https://hubs.uport.me')
             await provider.waitForTransaction(txHash)
           })
           it('resolves document', async () => {
@@ -575,14 +575,14 @@ describe('EthrDID', () => {
   describe('signJWT', () => {
     describe('No signer configured', () => {
       it('should fail', () => {
-        return expect(ethrDid.signJWT({ hello: 'world' })).rejects.toEqual(new Error('No signer configured'))
+        return expect(ezrahDid.signJWT({ hello: 'world' })).rejects.toEqual(new Error('No signer configured'))
       })
     })
 
     describe('creating a signing Delegate', () => {
       let kp: KeyPair
       beforeAll(async () => {
-        kp = (await ethrDid.createSigningDelegate()).kp
+        kp = (await ezrahDid.createSigningDelegate()).kp
       })
 
       it('resolves document', async () => {
@@ -645,7 +645,7 @@ describe('EthrDID', () => {
 
       it('should sign valid jwt', async () => {
         expect.assertions(1)
-        const jwt = await ethrDid.signJWT({ hello: 'world' })
+        const jwt = await ezrahDid.signJWT({ hello: 'world' })
         const verification = await verifyJWT(jwt, { resolver })
         const { signer } = verification
         expect(signer).toEqual({
@@ -659,8 +659,8 @@ describe('EthrDID', () => {
 
     describe('plain vanilla key pair account', () => {
       it('should sign valid jwt', async () => {
-        const kp: KeyPair = EthrDID.createKeyPair('dev')
-        plainDid = new EthrDID({
+        const kp: KeyPair = EzrahDID.createKeyPair('dev')
+        plainDid = new EzrahDID({
           ...kp,
           provider,
           registry: registry,
@@ -673,12 +673,12 @@ describe('EthrDID', () => {
   })
 
   describe('verifyJWT', () => {
-    const ethrDidAsIssuer = new EthrDID(EthrDID.createKeyPair('dev'))
-    const did = ethrDidAsIssuer.did
+    const ezrahDidAsIssuer = new EzrahDID(EzrahDID.createKeyPair('dev'))
+    const did = ezrahDidAsIssuer.did
 
     it('verifies the signature of the JWT', async () => {
       expect.assertions(1)
-      return ethrDidAsIssuer
+      return ezrahDidAsIssuer
         .signJWT({ hello: 'friend' })
         .then((jwt) => plainDid.verifyJWT(jwt, resolver))
         .then(({ issuer }) => expect(issuer).toEqual(did))
@@ -687,7 +687,7 @@ describe('EthrDID', () => {
     describe('uses did for verifying aud claim', () => {
       it('verifies the signature of the JWT', () => {
         expect.assertions(1)
-        return ethrDidAsIssuer
+        return ezrahDidAsIssuer
           .signJWT({ hello: 'friend', aud: plainDid.did })
           .then((jwt) => plainDid.verifyJWT(jwt, resolver))
           .then(({ issuer }) => expect(issuer).toEqual(did))
@@ -695,7 +695,7 @@ describe('EthrDID', () => {
 
       it('fails if wrong did is used as audience', async () => {
         expect.assertions(1)
-        const signed = await ethrDidAsIssuer.signJWT({ hello: 'friend', aud: 'some random audience' })
+        const signed = await ezrahDidAsIssuer.signJWT({ hello: 'friend', aud: 'some random audience' })
         try {
           await plainDid.verifyJWT(signed, resolver)
         } catch (e) {
@@ -722,7 +722,7 @@ describe('EthrDID', () => {
             -----END PUBLIC KEY-----`
 
     beforeAll(async () => {
-      const txHash = await ethrDid.setAttribute('did/pub/Rsa/veriKey/pem', rsa4096PublicKey, 86400, 200000)
+      const txHash = await ezrahDid.setAttribute('did/pub/Rsa/veriKey/pem', rsa4096PublicKey, 86400, 200000)
       await provider.waitForTransaction(txHash)
     })
 
@@ -743,8 +743,8 @@ describe('EthrDID', () => {
     it('supports base58 keys as hexstring', async () => {
       const publicKeyHex =
         '04fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea535847946393f8145252eea68afe67e287b3ed9b31685ba6c3b00060a73b9b1242d68f7'
-      const did = `did:ethr:dev:${delegate1}`
-      const didController = new EthrDID({
+      const did = `did:ezrah:dev:${delegate1}`
+      const didController = new EzrahDID({
         identifier: did,
         provider,
         registry,
@@ -769,8 +769,8 @@ describe('EthrDID', () => {
     })
 
     it('supports base58 keys as string', async () => {
-      const did = `did:ethr:dev:${delegate2}`
-      const didController = new EthrDID({
+      const did = `did:ezrah:dev:${delegate2}`
+      const didController = new EzrahDID({
         identifier: did,
         provider,
         registry,
@@ -796,9 +796,9 @@ describe('EthrDID', () => {
   })
 })
 
-describe('EthrDID (Meta Transactions)', () => {
-  let ethrDid: EthrDID,
-    walletSigner: EthrDID,
+describe('EzrahDID (Meta Transactions)', () => {
+  let ezrahDid: EzrahDID,
+    walletSigner: EzrahDID,
     registry: string,
     registryContract: Contract,
     accounts: string[],
@@ -812,7 +812,7 @@ describe('EthrDID (Meta Transactions)', () => {
   const provider = createProvider()
 
   beforeAll(async () => {
-    const factory = ContractFactory.fromSolidity(EthereumDIDRegistry).connect(await provider.getSigner(0))
+    const factory = ContractFactory.fromSolidity(EzrahDIDRegistry).connect(await provider.getSigner(0))
 
     registryContract = await factory.deploy()
     registryContract = await registryContract.waitForDeployment()
@@ -826,16 +826,16 @@ describe('EthrDID (Meta Transactions)', () => {
     delegate1 = accounts[3]
     delegate2 = accounts[4]
     walletIdentity = accounts[5]
-    did = `did:ethr:dev:${identity}`
+    did = `did:ezrah:dev:${identity}`
 
     resolver = new Resolver(getResolver({ name: 'dev', provider, registry, chainId: 1337 }))
-    ethrDid = new EthrDID({
+    ezrahDid = new EzrahDID({
       provider,
       registry,
       identifier: identity,
       chainNameOrId: 'dev',
     })
-    walletSigner = new EthrDID({
+    walletSigner = new EzrahDID({
       provider,
       registry,
       identifier: identity,
@@ -850,7 +850,7 @@ describe('EthrDID (Meta Transactions)', () => {
     // Add first delegate
     const delegateType = DelegateTypes.sigAuth
     const exp = 86400
-    const hash1 = await ethrDid.createAddDelegateHash(delegateType, delegate1, exp)
+    const hash1 = await ezrahDid.createAddDelegateHash(delegateType, delegate1, exp)
     const signature1 = new SigningKey(currentOwnerPrivateKey).sign(hash1)
 
     await walletSigner.addDelegateSigned(
@@ -882,7 +882,7 @@ describe('EthrDID (Meta Transactions)', () => {
     })
 
     // Add second delegate
-    const hash2 = await ethrDid.createAddDelegateHash(delegateType, delegate2, exp)
+    const hash2 = await ezrahDid.createAddDelegateHash(delegateType, delegate2, exp)
     const signature2 = new SigningKey(currentOwnerPrivateKey).sign(hash2)
 
     await walletSigner.addDelegateSigned(
@@ -920,7 +920,7 @@ describe('EthrDID (Meta Transactions)', () => {
 
   it('remove delegate1 via meta transaction', async () => {
     const delegateType = DelegateTypes.sigAuth
-    const hash = await ethrDid.createRevokeDelegateHash(delegateType, delegate1)
+    const hash = await ezrahDid.createRevokeDelegateHash(delegateType, delegate1)
     const signature = new SigningKey(currentOwnerPrivateKey).sign(hash)
 
     await walletSigner.revokeDelegateSigned(delegate1, DelegateTypes.sigAuth, {
@@ -958,7 +958,7 @@ describe('EthrDID (Meta Transactions)', () => {
     const serviceEndpointParams = { uri: 'https://didcomm.example.com', transportType: 'http' }
     const attributeValue = JSON.stringify(serviceEndpointParams)
     const attributeExpiration = 86400
-    const hash1 = await ethrDid.createSetAttributeHash(attributeName, attributeValue, attributeExpiration)
+    const hash1 = await ezrahDid.createSetAttributeHash(attributeName, attributeValue, attributeExpiration)
     const signature1 = new SigningKey(currentOwnerPrivateKey).sign(hash1)
 
     await walletSigner.setAttributeSigned(attributeName, attributeValue, attributeExpiration, {
@@ -997,7 +997,7 @@ describe('EthrDID (Meta Transactions)', () => {
 
     // Add second attribute
     const attributeName2 = 'did/svc/test2Service'
-    const hash2 = await ethrDid.createSetAttributeHash(attributeName2, attributeValue, attributeExpiration)
+    const hash2 = await ezrahDid.createSetAttributeHash(attributeName2, attributeValue, attributeExpiration)
     const signature2 = new SigningKey(currentOwnerPrivateKey).sign(hash2)
 
     await walletSigner.setAttributeSigned(attributeName2, attributeValue, attributeExpiration, {
@@ -1047,7 +1047,7 @@ describe('EthrDID (Meta Transactions)', () => {
     const attributeName = 'did/svc/testService'
     const serviceEndpointParams = { uri: 'https://didcomm.example.com', transportType: 'http' }
     const attributeValue = JSON.stringify(serviceEndpointParams)
-    const hash = await ethrDid.createRevokeAttributeHash(attributeName, attributeValue)
+    const hash = await ezrahDid.createRevokeAttributeHash(attributeName, attributeValue)
     const signature = new SigningKey(currentOwnerPrivateKey).sign(hash)
 
     await walletSigner.revokeAttributeSigned(attributeName, attributeValue, {
@@ -1087,7 +1087,7 @@ describe('EthrDID (Meta Transactions)', () => {
 
   it('change owner via meta transaction', async () => {
     const nextOwner = accounts[2]
-    const hash = await ethrDid.createChangeOwnerHash(nextOwner)
+    const hash = await ezrahDid.createChangeOwnerHash(nextOwner)
     const signature = new SigningKey(currentOwnerPrivateKey).sign(hash)
 
     await walletSigner.changeOwnerSigned(nextOwner, {
