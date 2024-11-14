@@ -1,10 +1,4 @@
-[![Discord](https://img.shields.io/discord/878293684620234752?logo=discord&logoColor=white&style=flat-square)](https://discord.gg/huwyNfVkhe)
-[![npm](https://img.shields.io/npm/dt/ezrah-did.svg)](https://www.npmjs.com/package/ezrah-did)
-[![npm](https://img.shields.io/npm/v/ezrah-did.svg)](https://www.npmjs.com/package/ezrah-did)
-[![GitHub Discussions](https://img.shields.io/github/discussions/uport-project/veramo?style=flat)](https://github.com/uport-project/veramo/discussions)
-[![Twitter Follow](https://img.shields.io/twitter/follow/veramolabs.svg?style=social&label=Follow)](https://twitter.com/veramolabs)
-
-# ezrah-DID Library
+# Ezrah-DID Library
 
 [DID Specification](https://w3c.github.io/did-core/) | [ERC-1056](https://github.com/ethereum/EIPs/issues/1056)
 | [Getting Started](/docs/guides/index.md)
@@ -27,21 +21,20 @@ and [ezrah-did-registry](https://github.com/uport-project/ezrah-did-registry).
 A DID is an Identifier that allows you to lookup a DID document that can be used to authenticate you and messages
 created by you.
 
-ezrah-DID provides a scalable identity method for public keys and Ethereum addresses that gives them the ability to
-collect on-chain and off-chain data. Because ezrah-DID allows any Ethereum key pair to become a DID, it is more scalable
-and privacy-preserving than smart contract based identity methods, like our
-previous [Proxy Contract](https://github.com/uport-project/uport-identity/blob/develop/docs/reference/proxy.md).
+Ezrah-DID provides a scalable identity method for public keys and Ethereum addresses that gives them the ability to
+collect on-chain and off-chain data. Because Ezrah-DID allows any Ethereum key pair to become a DID, it is more scalable
+and privacy-preserving than smart contract based identity methods
 
-This particular DID method relies on the [ezrah-Did-Registry](https://github.com/uport-project/ezrah-did-registry). The
-ezrah-DID-Registry is a smart contract that facilitates public key resolution for off-chain (and on-chain)
+This particular DID method relies on the [Ezrah-Did-Registry](https://github.com/uport-project/ezrah-did-registry). The
+Ezrah-DID-Registry is a smart contract that facilitates public key resolution for off-chain (and on-chain)
 authentication. It also facilitates key rotation, delegate assignment and revocation to allow 3rd party signers on a
 key's behalf, as well as setting and revoking off-chain attribute data. These interactions and events are used in
 aggregate to form a DID's DID document using
-the [ezrah-Did-Resolver](https://github.com/decentralized-identity/ezrah-did-resolver)
+the [Ezrah-Did-Resolver](https://github.com/coincord/ezrah-did-resolver)
 .
 
 An example of a DID document resolved using
-the [ezrah-did-resolver](https://github.com/decentralized-identity/ezrah-did-resolver):
+the [ezrah-did-resolver](https://github.com/coincord/ezrah-did-resolver):
 
 ```json5
 {
@@ -74,6 +67,7 @@ method name is `ezrah`, and the method identifier is an Ethereum address or a `s
 To encode a DID for an Ethereum address, simply prepend `did:ezrah:`
 
 For example:
+
 
 - DID based on an ethereum address: `did:ezrah:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74`
 - DID based on a key: `did:ezrah:0x0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798`
