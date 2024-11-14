@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
         with:
           fetch-depth: 0
-      - name: "Setup node with cache"
+      - name: 'Setup node with cache'
         uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -18,7 +18,7 @@ jobs:
       - run: yarn run lint
       - run: yarn run test:ci
 
-      - name: "Upload coverage reports"
-        uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: true
+      # - name: "Upload coverage reporta27b8854-9dbe-47a0-ac03-b3bd1e246cf0s"
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     fail_ci_if_error: true
