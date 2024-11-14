@@ -1,6 +1,6 @@
 {
-  "name": "ethr-did",
-  "version": "3.0.21",
+  "name": "ezrah-did",
+  "version": "0.0.0",
   "description": "Create, manage and use did:ethr identifiers",
   "type": "module",
   "source": "src/index.ts",
@@ -21,10 +21,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:uport-project/ethr-did.git"
+    "url": "git@github.com:coincord/ezrah-did.git"
   },
-  "author": "Pelle Braendgaard",
   "contributors": [
+    "Pelle Braendgaard",
     "Mircea Nistor <mircea.nistor@mesh.xyz>"
   ],
   "license": "Apache-2.0",
@@ -64,6 +64,6 @@
     "did-jwt": "^8.0.0",
     "did-resolver": "^4.1.0",
     "ethers": "^6.8.1",
-    "ethr-did-resolver": "10.1.5"
+    "ezrah-did-resolver": "^1.0.0"
   }
 }

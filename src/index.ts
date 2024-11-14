@@ -1,5 +1,5 @@
 import { createJWT, ES256KSigner, hexToBytes, JWTVerified, Signer as JWTSigner, verifyJWT } from 'did-jwt'
-import { EthrDidController, interpretIdentifier, MetaSignature, REGISTRY } from 'ethr-did-resolver'
+import { EzrahDidController, interpretIdentifier, MetaSignature, REGISTRY } from 'ezrah-did-resolver'
 import { Resolvable } from 'did-resolver'
 import {
   toBeHex,
@@ -51,13 +51,13 @@ type DelegateOptions = {
   expiresIn?: number
 }
 
-export class EthrDID {
+export class EzrahDID {
   public did: string
   public address: string
   public signer?: JWTSigner
   public alg?: 'ES256K' | 'ES256K-R'
   private owner?: string
-  private readonly controller?: EthrDidController
+  private readonly controller?: EzrahDidController
 
   constructor(conf: IConfig) {
     const { address, publicKey, network } = interpretIdentifier(conf.identifier)
@@ -70,7 +70,7 @@ export class EthrDID {
       if (conf.privateKey && typeof txSigner === 'undefined') {
         txSigner = new Wallet(conf.privateKey)
       }
-      this.controller = new EthrDidController(
+      this.controller = new EzrahDidController(
         conf.identifier,
         undefined,
         txSigner,
@@ -87,7 +87,9 @@ export class EthrDID {
         networkString = ''
       }
       this.did =
-        typeof publicKey === 'string' ? `did:ethr:${networkString}${publicKey}` : `did:ethr:${networkString}${address}`
+        typeof publicKey === 'string'
+          ? `did:ezrah:${networkString}${publicKey}`
+          : `did:ezrah:${networkString}${address}`
     }
     this.address = address
     if (conf.signer) {
@@ -95,7 +97,7 @@ export class EthrDID {
       this.alg = conf.alg
       if (!this.alg) {
         console.warn(
-          'A JWT signer was specified but no algorithm was set. Please set the `alg` parameter when calling `new EthrDID()`'
+          'A JWT signer was specified but no algorithm was set. Please set the `alg` parameter when calling `new EzrahDID()`'
         )
       }
     } else if (conf.privateKey) {
@@ -110,7 +112,7 @@ export class EthrDID {
     const address = computeAddress(privateKey)
     const publicKey = wallet.publicKey
     const net = typeof chainNameOrId === 'number' ? toQuantity(chainNameOrId) : chainNameOrId
-    const identifier = net ? `did:ethr:${net}:${publicKey}` : publicKey
+    const identifier = net ? `did:ezrah:${net}:${publicKey}` : publicKey
     return { address, privateKey, publicKey, identifier }
   }
 
@@ -315,7 +317,7 @@ export class EthrDID {
     delegateType = DelegateTypes.veriKey,
     expiresIn = 86400
   ): Promise<{ kp: KeyPair; txHash: string }> {
-    const kp = EthrDID.createKeyPair()
+    const kp = EzrahDID.createKeyPair()
     this.signer = ES256KSigner(hexToBytes(kp.privateKey), true)
     const txHash = await this.addDelegate(kp.address, {
       delegateType,
